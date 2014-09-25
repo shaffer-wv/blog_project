@@ -1,0 +1,15 @@
+{% extends "blogengine/includes/base.html" %}
+
+{% load custom_markdown %}
+
+{% block content %}
+	<div class="blog-post">
+		<h2 class="blog-post-title">{{ object.title }}</h2>
+		<p class="blog-post-meta">{{ object.pub_date }}</p>
+		<p>{{ object.text|custom_markdown }}</p>
+		<!-- <a href="{{ object.category.get_absolute_url }}">{{ object.category.name }}</a>
+		{% for tag in post.tags.all %}
+		<a href="{{ tag.get_absolute_url }}">{{ tag.name }}</a>
+		{% endfor %} -->
+	</div>
+{% endblock %}
