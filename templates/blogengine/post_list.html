@@ -8,4 +8,13 @@
 		<h3>{{ post.pub_date }}</h3>
 		{{ post.text|custom_markdown }}
 		{% endfor %}
+
+		{% if page_obj.has_previous %}
+		<ul class="pager">
+			<li><a href="/{{ page_obj.previous_page_number }}/">Previous Page</a></li>
+		{% endif %}
+		{% if page_obj.has_next %}
+			<li><a href="/{{ page.obj.next_page_number }}/">Next Page</a></li>
+		</ul>
+		{% endif %}
 	{% endblock %}
