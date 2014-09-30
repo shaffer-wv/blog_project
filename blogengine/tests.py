@@ -408,6 +408,10 @@ class PostViewTest(BaseAcceptanceTest):
 		category.description = 'The Python programming language'
 		category.save()
 
+		tag = Tag()
+		tag.name = 'perl'
+		tag.save()
+
 		# Create the site
 		site = Site()
 		site.name = 'example.com'
@@ -422,6 +426,8 @@ class PostViewTest(BaseAcceptanceTest):
 		post.pub_date = timezone.now()
 		post.site = site
 		post.category = category
+		post.save()
+		post.tags.add(tag)
 		post.save()
 
 		# Check new post saved
@@ -442,6 +448,10 @@ class PostViewTest(BaseAcceptanceTest):
 		# Check the category is in the response
 		self.assertTrue(post.category.name in response.content)
 
+		# Check the tag is in the response
+		post_tag = all_posts[0].tags.all()[0]
+		self.assertTrue(post_tag.name in response.content)
+
 		# Check post date is in the response
 		self.assertTrue(str(post.pub_date.year) in response.content)
 		self.assertTrue(post.pub_date.strftime('%b') in response.content)
@@ -456,6 +466,10 @@ class PostViewTest(BaseAcceptanceTest):
 		category.description = 'The Python programming language'
 		category.save()
 
+		tag = Tag()
+		tag.name = 'perl'
+		tag.save()
+
 		site = Site()
 		site.name = 'example.com'
 		site.domain = 'example.com'
@@ -468,7 +482,9 @@ class PostViewTest(BaseAcceptanceTest):
 		post.slug = 'my-first-post'
 		post.site = site
 		post.category = category
-		post.save()		
+		post.save()
+		post.tags.add(tag)
+		post.save()
 
 		all_posts = Post.objects.all()
 		self.assertEquals(len(all_posts), 1)
@@ -484,6 +500,9 @@ class PostViewTest(BaseAcceptanceTest):
 		self.assertTrue(markdown.markdown(post.text) in response.content)
 
 		self.assertTrue(post.category.name in response.content)
+
+		post_tag = all_posts[0].tags.all()[0]
+		self.assertTrue(post_tag.name in response.content)
 
 		self.assertTrue(str(post.pub_date.year) in response.content)
 		self.assertTrue(post.pub_date.strftime('%b') in response.content)
@@ -524,7 +543,44 @@ class PostViewTest(BaseAcceptanceTest):
 
 		self.assertTrue(post.category.name in response.content)
 		self.assertTrue(post.title in response.content)
-		
+
+	def test_tag_page(self):
+		tag = Tag()
+		tag.name = 'python'
+		tag.save()
+
+		site = Site()
+		site.name = 'example.com'
+		site.domain = 'example.com'
+		site.save()
+
+		post = Post()
+		post.title = 'My first post'
+		post.text = 'This is my first blog post'
+		post.pub_date = timezone.now()
+		post.slug = 'my-first-post'
+		post.site = site
+		post.save()
+		post.tags.add(tag)
+		post.save()
+
+		all_posts = Post.objects.all()
+		self.assertEquals(len(all_posts), 1)
+		only_post = all_posts[0]
+		self.assertEquals(only_post, post)
+
+		tag_url = post.tags.all()[0].get_absolute_url()
+
+		response = self.client.get(tag_url)
+		self.assertEquals(response.status_code, 200)
+
+		self.assertTrue(post.tags.all()[0].name in response.content)
+
+		self.assertTrue(markdown.markdown(post.text) in response.content)
+
+		self.assertTrue(str(post.pub_date.year) in response.content)
+		self.assertTrue(post.pub_date.strftime('%b') in response.content)
+		self.assertTrue(str(post.pub_date.day) in response.content)
 
 class FlatPageViewTest(BaseAcceptanceTest):
 	def test_create_flat_page(self):
