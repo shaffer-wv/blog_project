@@ -582,6 +582,18 @@ class PostViewTest(BaseAcceptanceTest):
 		self.assertTrue(post.pub_date.strftime('%b') in response.content)
 		self.assertTrue(str(post.pub_date.day) in response.content)
 
+	def test_nonexistent_category_page(self):
+		category_url = '/category/blah'
+		response = self.client.get(category_url)
+		self.assertEquals(response.status_code, 200)
+		self.assertTrue('No posts found' in response.content)
+
+	def test_nonexistent_tag_page(self):
+		tag_url = '/tag/blah'
+		response = self.client.get(tag_url)
+		self.assertEquals(response.status_code, 200)
+		self.assertTrue('No posts found' in response.content)
+
 class FlatPageViewTest(BaseAcceptanceTest):
 	def test_create_flat_page(self):
 		# Create flag page
