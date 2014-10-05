@@ -4,7 +4,7 @@ from django.contrib.flatpages.models import FlatPage
 from django.contrib.sites.models import Site
 from blogengine.models import Post, Category, Tag
 
-import markdown
+import markdown2 as markdown
 
 # Create your tests here.
 class PostTest(TestCase):
@@ -425,7 +425,7 @@ class AdminTest(BaseAcceptanceTest):
 			follow=True)
 		self.assertEquals(response.status_code, 200)
 
-		self.assertTrue('added succesfully' in response.content)
+		self.assertTrue('added successfully' in response.content)
 
 		all_posts = Post.objects.all()
 		self.assertEquals(len(all_posts), 1)
