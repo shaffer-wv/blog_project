@@ -13,6 +13,7 @@ class PostTest(TestCase):
 		tag = Tag()
 
 		tag.name = 'python'
+		tag.slug = 'python'
 		tag.save()
 
 		all_tags = Tag.objects.all()
@@ -21,6 +22,7 @@ class PostTest(TestCase):
 		self.assertEquals(only_tag, tag)
 
 		self.assertTrue(only_tag.name, 'python')
+		self.assertTrue(only_tag.slug, 'python')
 
 	def test_create_category(self):
 		# Create the category
@@ -29,6 +31,7 @@ class PostTest(TestCase):
 		# Add attributes
 		category.name = 'python'
 		category.description = 'The Python programming language'
+		category.slug = 'python'
 
 		category.save()
 
@@ -41,6 +44,7 @@ class PostTest(TestCase):
 		# Check attributes
 		self.assertEquals(only_category.name, 'python')
 		self.assertEquals(only_category.description, 'The Python programming language')
+		self.assertEquals(only_category.slug, 'python')
 
 	def test_create_post(self):
 		tag = Tag()
@@ -398,6 +402,33 @@ class AdminTest(BaseAcceptanceTest):
 
 		all_tags = Tag.objects.all()
 		self.assertEquals(len(all_tags), 0)
+
+	def test_create_post_without_tag(self):
+		category = Category()
+		category.name = 'python'
+		category.description = 'The Python programming language'
+		category.save()
+
+		# Log in
+		self.client.login(username='bobsmith', password="password")
+
+		# Check response code
+		response = self.client.post('/admin/blogengine/post/add/', {
+			'title': 'My first post',
+			'text': 'This is my first post',
+			'pub_date_0': '2014-10-2',
+			'pub_date_1': '22:00:04',
+			'slug': 'my-first-post',
+			'site': '1',
+			'category': '1'
+			},
+			follow=True)
+		self.assertEquals(response.status_code, 200)
+
+		self.assertTrue('added succesfully' in response.content)
+
+		all_posts = Post.objects.all()
+		self.assertEquals(len(all_posts), 1)
 	
 
 class PostViewTest(BaseAcceptanceTest):
