@@ -18,6 +18,18 @@ class SiteFactory(factory.django.DjangoModelFactory):
 	name = 'example.com'
 	domain = 'example.com'
 
+class CategoryFactory(factory.django.DjangoModelFactory):
+	class Meta:
+		model = Category
+		django_get_or_create = (
+			'name',
+			'description',
+			'slug'
+		)
+
+	name = 'python'
+	description = 'The Python programming language'
+	slug = 'python'
 
 # Create your tests here.
 class PostTest(TestCase):
@@ -39,14 +51,7 @@ class PostTest(TestCase):
 
 	def test_create_category(self):
 		# Create the category
-		category = Category()
-
-		# Add attributes
-		category.name = 'python'
-		category.description = 'The Python programming language'
-		category.slug = 'python'
-
-		category.save()
+		category = CategoryFactory()
 
 		# Check we can find it
 		all_categories = Category.objects.all()
@@ -65,10 +70,7 @@ class PostTest(TestCase):
 		tag.save()
 
 		# Create the category
-		category = Category()
-		category.name = 'python'
-		category.description = 'The Python programming language'
-		category.save()
+		category = CategoryFactory()
 
 		# Create the site
 		site = SiteFactory()
@@ -169,10 +171,7 @@ class AdminTest(BaseAcceptanceTest):
 
 	def test_create_post(self):
 		# Create the category
-		category = Category()
-		category.name = 'python'
-		category.description = 'The Python programming language'
-		category.save()
+		category = CategoryFactory()
 
 		tag = Tag()
 		tag.name = 'python'
@@ -207,10 +206,7 @@ class AdminTest(BaseAcceptanceTest):
 		self.assertEquals(len(all_posts), 1)
 
 	def test_edit_post(self):
-		category = Category()
-		category.name = 'python'
-		category.description = 'The Python programming language'
-		category.save()
+		category = CategoryFactory()
 
 		tag = Tag()
 		tag.name = 'python'
@@ -260,10 +256,7 @@ class AdminTest(BaseAcceptanceTest):
 		self.assertEquals(only_post.slug, 'my-second-post')
 
 	def test_delete_post(self):
-		category = Category()
-		category.name = 'python'
-		category.description = 'The Python programming language'
-		category.save()
+		category = CategoryFactory()
 
 		tag = Tag()
 		tag.name = 'python'
@@ -318,10 +311,7 @@ class AdminTest(BaseAcceptanceTest):
 		self.assertEquals(len(all_categories), 1)
 
 	def test_edit_category(self):
-		category = Category()
-		category.name = 'python'
-		category.description = 'The Python programming language'
-		category.save()
+		category = CategoryFactory()
 
 		self.client.login(username='bobsmith', password="password")
 
@@ -340,10 +330,7 @@ class AdminTest(BaseAcceptanceTest):
 		self.assertEquals(only_category.description, 'The Perl programming language')
 
 	def test_delete_category(self):
-		category = Category()
-		category.name = 'python'
-		category.description = 'The Python programming language'
-		category.save()
+		category = CategoryFactory()
 
 		self.client.login(username='bobsmith', password="password")
 
@@ -410,10 +397,7 @@ class AdminTest(BaseAcceptanceTest):
 		self.assertEquals(len(all_tags), 0)
 
 	def test_create_post_without_tag(self):
-		category = Category()
-		category.name = 'python'
-		category.description = 'The Python programming language'
-		category.save()
+		category = CategoryFactory()
 
 		# Log in
 		self.client.login(username='bobsmith', password="password")
@@ -440,10 +424,7 @@ class AdminTest(BaseAcceptanceTest):
 class PostViewTest(BaseAcceptanceTest):
 	
 	def test_index(self):
-		category = Category()
-		category.name = 'python'
-		category.description = 'The Python programming language'
-		category.save()
+		category = CategoryFactory()
 
 		tag = Tag()
 		tag.name = 'perl'
@@ -495,10 +476,7 @@ class PostViewTest(BaseAcceptanceTest):
 		self.assertTrue('<a href="http://127.0.0.1:8000/">my first blog post</a>' in response.content)
 
 	def test_individual_post(self):
-		category = Category()
-		category.name = 'python'
-		category.description = 'The Python programming language'
-		category.save()
+		category = CategoryFactory()
 
 		tag = Tag()
 		tag.name = 'perl'
@@ -542,10 +520,7 @@ class PostViewTest(BaseAcceptanceTest):
 		self.assertTrue('<a href="http://127.0.0.1:8000/">my first blog post</a>' in response.content)
 
 	def test_category_page(self):
-		category = Category()
-		category.name = 'python'
-		category.description = 'The Python programming language'
-		category.save()
+		category = CategoryFactory()
 
 		site = SiteFactory()
 
