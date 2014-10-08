@@ -31,15 +31,22 @@ class CategoryFactory(factory.django.DjangoModelFactory):
 	description = 'The Python programming language'
 	slug = 'python'
 
+class TagFactory(factory.django.DjangoModelFactory):
+	class Meta:
+		model = Tag
+		django_get_or_create = (
+			'name',
+			'slug'
+		)
+
+	name = 'python'
+	slug = 'python'
+
 # Create your tests here.
 class PostTest(TestCase):
 
 	def test_create_tag(self):
-		tag = Tag()
-
-		tag.name = 'python'
-		tag.slug = 'python'
-		tag.save()
+		tag = TagFactory()
 
 		all_tags = Tag.objects.all()
 		self.assertEquals(len(all_tags), 1)
@@ -65,9 +72,7 @@ class PostTest(TestCase):
 		self.assertEquals(only_category.slug, 'python')
 
 	def test_create_post(self):
-		tag = Tag()
-		tag.name = 'python'
-		tag.save()
+		tag = TagFactory()
 
 		# Create the category
 		category = CategoryFactory()
@@ -173,9 +178,7 @@ class AdminTest(BaseAcceptanceTest):
 		# Create the category
 		category = CategoryFactory()
 
-		tag = Tag()
-		tag.name = 'python'
-		tag.save()
+		tag = TagFactory()
 
 		# Log in
 		self.client.login(username='bobsmith', password="password")
@@ -208,9 +211,7 @@ class AdminTest(BaseAcceptanceTest):
 	def test_edit_post(self):
 		category = CategoryFactory()
 
-		tag = Tag()
-		tag.name = 'python'
-		tag.save()
+		tag = TagFactory()
 
 		# Create the site
 		site = SiteFactory()
@@ -258,9 +259,7 @@ class AdminTest(BaseAcceptanceTest):
 	def test_delete_post(self):
 		category = CategoryFactory()
 
-		tag = Tag()
-		tag.name = 'python'
-		tag.save()
+		tag = TagFactory()
 
 		# Create the site
 		site = SiteFactory()
@@ -360,9 +359,7 @@ class AdminTest(BaseAcceptanceTest):
 		self.assertEquals(len(all_tags), 1)
 
 	def test_edit_tag(self):
-		tag = Tag()
-		tag.name = 'python'
-		tag.save()
+		tag = TagFactory()
 
 		self.client.login(username='bobsmith', password="password")
 
@@ -378,9 +375,7 @@ class AdminTest(BaseAcceptanceTest):
 		self.assertEquals(only_tag.name, 'java')
 
 	def test_delete_tag(self):
-		tag = Tag()
-		tag.name = 'python'
-		tag.save()
+		tag = TagFactory()
 
 		self.client.login(username='bobsmith', password="password")
 
@@ -426,9 +421,7 @@ class PostViewTest(BaseAcceptanceTest):
 	def test_index(self):
 		category = CategoryFactory()
 
-		tag = Tag()
-		tag.name = 'perl'
-		tag.save()
+		tag = TagFactory()
 
 		# Create the site
 		site = SiteFactory()
@@ -478,9 +471,7 @@ class PostViewTest(BaseAcceptanceTest):
 	def test_individual_post(self):
 		category = CategoryFactory()
 
-		tag = Tag()
-		tag.name = 'perl'
-		tag.save()
+		tag = TagFactory()
 
 		site = SiteFactory()
 
@@ -548,9 +539,7 @@ class PostViewTest(BaseAcceptanceTest):
 		self.assertTrue(post.title in response.content)
 
 	def test_tag_page(self):
-		tag = Tag()
-		tag.name = 'python'
-		tag.save()
+		tag = TagFactory()
 
 		site = SiteFactory()
 
