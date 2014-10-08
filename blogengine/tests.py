@@ -5,6 +5,19 @@ from django.contrib.sites.models import Site
 from blogengine.models import Post, Category, Tag
 
 import markdown2 as markdown
+import factory.django
+
+class SiteFactory(factory.django.DjangoModelFactory):
+	class Meta:
+		model = Site
+		django_get_or_create = (
+			'name',
+			'domain'
+		)
+
+	name = 'example.com'
+	domain = 'example.com'
+
 
 # Create your tests here.
 class PostTest(TestCase):
@@ -58,10 +71,7 @@ class PostTest(TestCase):
 		category.save()
 
 		# Create the site
-		site = Site()
-		site.name = 'example.com'
-		site.domain = 'example.com'
-		site.save()
+		site = SiteFactory()
 
 		# Create the post
 		post = Post()
@@ -107,9 +117,11 @@ class PostTest(TestCase):
 		self.assertEquals(only_post_tag, tag)
 		self.assertEquals(only_post_tag.name, 'python')
 
+
 class BaseAcceptanceTest(LiveServerTestCase):
 	def setUp(self):
 		self.client = Client()
+
 
 class AdminTest(BaseAcceptanceTest):
 	fixtures = ['users.json']
@@ -205,10 +217,7 @@ class AdminTest(BaseAcceptanceTest):
 		tag.save()
 
 		# Create the site
-		site = Site()
-		site.name = 'example.com'
-		site.domain = 'example.com'
-		site.save()
+		site = SiteFactory()
 
 		# Create the post
 		post = Post()
@@ -261,10 +270,7 @@ class AdminTest(BaseAcceptanceTest):
 		tag.save()
 
 		# Create the site
-		site = Site()
-		site.name = 'example.com'
-		site.domain = 'example.com'
-		site.save()
+		site = SiteFactory()
 
 		# Create the post
 		post = Post()
@@ -444,10 +450,7 @@ class PostViewTest(BaseAcceptanceTest):
 		tag.save()
 
 		# Create the site
-		site = Site()
-		site.name = 'example.com'
-		site.domain = 'example.com'
-		site.save()
+		site = SiteFactory()
 
 		# Create the post
 		post = Post()
@@ -501,10 +504,7 @@ class PostViewTest(BaseAcceptanceTest):
 		tag.name = 'perl'
 		tag.save()
 
-		site = Site()
-		site.name = 'example.com'
-		site.domain = 'example.com'
-		site.save()
+		site = SiteFactory()
 
 		post = Post()
 		post.title = 'My first post'
@@ -547,10 +547,7 @@ class PostViewTest(BaseAcceptanceTest):
 		category.description = 'The Python programming language'
 		category.save()
 
-		site = Site()
-		site.name = 'example.com'
-		site.domain = 'example.com'
-		site.save()
+		site = SiteFactory()
 
 		post = Post()
 		post.title = 'My first post'
@@ -580,10 +577,7 @@ class PostViewTest(BaseAcceptanceTest):
 		tag.name = 'python'
 		tag.save()
 
-		site = Site()
-		site.name = 'example.com'
-		site.domain = 'example.com'
-		site.save()
+		site = SiteFactory()
 
 		post = Post()
 		post.title = 'My first post'
@@ -624,6 +618,7 @@ class PostViewTest(BaseAcceptanceTest):
 		response = self.client.get(tag_url)
 		self.assertEquals(response.status_code, 200)
 		self.assertTrue('No posts found' in response.content)
+
 
 class FlatPageViewTest(BaseAcceptanceTest):
 	def test_create_flat_page(self):
