@@ -54,6 +54,23 @@ class FlatPageFactory(factory.django.DjangoModelFactory):
 	title = 'About me'
 	content = 'All about me'
 
+class PostFactory(factory.django.DjangoModelFactory):
+	class Meta:
+		model = Post
+		django_get_or_create = (
+			'title',
+			'text',
+			'slug',
+			'pub_date'
+		)
+
+	title = 'My first post'
+	text = 'This is my first post'
+	slug = 'my-first-post'
+	pub_date = timezone.now()
+	site = factory.SubFactory(SiteFactory)
+	category = factory.SubFactory(CategoryFactory)
+
 
 # Create your tests here.
 class PostTest(TestCase):
@@ -85,29 +102,11 @@ class PostTest(TestCase):
 		self.assertEquals(only_category.slug, 'python')
 
 	def test_create_post(self):
-		tag = TagFactory()
-
-		# Create the category
-		category = CategoryFactory()
-
-		# Create the site
-		site = SiteFactory()
-
 		# Create the post
-		post = Post()
+		post = PostFactory()
 
-		# Set the attributes
-		post.title = 'My first post'
-		post.text = 'This is my first blog post'
-		post.pub_date = timezone.now()
-		post.slug = 'my-first-post'
-		post.site = site
-		post.category = category
-
-		# Save it
-		post.save()
-
-		# Add the tag to the post
+		# Create tag and add the tag to the post
+		tag = TagFactory()
 		post.tags.add(tag)
 		post.save()
 
@@ -119,7 +118,7 @@ class PostTest(TestCase):
 
 		# Check attributes
 		self.assertEquals(only_post.title, 'My first post')
-		self.assertEquals(only_post.text, 'This is my first blog post')
+		self.assertEquals(only_post.text, 'This is my first post')
 		self.assertEquals(only_post.slug, 'my-first-post')
 		self.assertEquals(only_post.pub_date.day, post.pub_date.day)
 		self.assertEquals(only_post.pub_date.month, post.pub_date.month)
@@ -222,22 +221,10 @@ class AdminTest(BaseAcceptanceTest):
 		self.assertEquals(len(all_posts), 1)
 
 	def test_edit_post(self):
-		category = CategoryFactory()
+		# Create the post
+		post = PostFactory()
 
 		tag = TagFactory()
-
-		# Create the site
-		site = SiteFactory()
-
-		# Create the post
-		post = Post()
-		post.title = 'My first post'
-		post.text = 'This is my first post'
-		post.slug = 'my-first-post'
-		post.pub_date = timezone.now()
-		post.site = site
-		post.category = category
-		post.save()
 		post.tags.add(tag)
 		post.save()
 
@@ -270,22 +257,10 @@ class AdminTest(BaseAcceptanceTest):
 		self.assertEquals(only_post.slug, 'my-second-post')
 
 	def test_delete_post(self):
-		category = CategoryFactory()
+		# Create the post
+		post = PostFactory()
 
 		tag = TagFactory()
-
-		# Create the site
-		site = SiteFactory()
-
-		# Create the post
-		post = Post()
-		post.title = 'My first post'
-		post.text = 'This is my first post'
-		post.slug = 'my-first-post'
-		post.pub_date = timezone.now()
-		post.site = site
-		post.category = category
-		post.save()
 		post.tags.add(tag)
 		post.save()
 
@@ -432,22 +407,10 @@ class AdminTest(BaseAcceptanceTest):
 class PostViewTest(BaseAcceptanceTest):
 	
 	def test_index(self):
-		category = CategoryFactory()
+		# Create the post
+		post = PostFactory(text='This is [my first blog post](http://127.0.0.1:8000/)')
 
 		tag = TagFactory()
-
-		# Create the site
-		site = SiteFactory()
-
-		# Create the post
-		post = Post()
-		post.title = 'My first post'
-		post.text = 'This is [my first blog post](http://127.0.0.1:8000/)'
-		post.slug = 'my-first-post'
-		post.pub_date = timezone.now()
-		post.site = site
-		post.category = category
-		post.save()
 		post.tags.add(tag)
 		post.save()
 
@@ -482,20 +445,10 @@ class PostViewTest(BaseAcceptanceTest):
 		self.assertTrue('<a href="http://127.0.0.1:8000/">my first blog post</a>' in response.content)
 
 	def test_individual_post(self):
-		category = CategoryFactory()
-
+		# Create the post
+		post = PostFactory(text='This is [my first blog post](http://127.0.0.1:8000/)')
+		
 		tag = TagFactory()
-
-		site = SiteFactory()
-
-		post = Post()
-		post.title = 'My first post'
-		post.text = 'This is [my first blog post](http://127.0.0.1:8000/)'
-		post.pub_date = timezone.now()
-		post.slug = 'my-first-post'
-		post.site = site
-		post.category = category
-		post.save()
 		post.tags.add(tag)
 		post.save()
 
@@ -524,19 +477,8 @@ class PostViewTest(BaseAcceptanceTest):
 		self.assertTrue('<a href="http://127.0.0.1:8000/">my first blog post</a>' in response.content)
 
 	def test_category_page(self):
-		category = CategoryFactory()
-
-		site = SiteFactory()
-
-		post = Post()
-		post.title = 'My first post'
-		post.text = 'This is my first blog post'
-		post.pub_date = timezone.now()
-		post.slug = 'my-first-post'
-		post.site = site
-		post.category = category
-		post.save()
-
+		post = PostFactory()
+		
 		all_posts = Post.objects.all()
 		self.assertEquals(len(all_posts), 1)
 		only_post = all_posts[0]
@@ -552,17 +494,10 @@ class PostViewTest(BaseAcceptanceTest):
 		self.assertTrue(post.title in response.content)
 
 	def test_tag_page(self):
+		# Create the post
+		post = PostFactory()
+		
 		tag = TagFactory()
-
-		site = SiteFactory()
-
-		post = Post()
-		post.title = 'My first post'
-		post.text = 'This is my first blog post'
-		post.pub_date = timezone.now()
-		post.slug = 'my-first-post'
-		post.site = site
-		post.save()
 		post.tags.add(tag)
 		post.save()
 
