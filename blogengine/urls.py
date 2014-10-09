@@ -11,6 +11,7 @@ urlpatterns = patterns('',
 	# Categories
 	url(r'^category/(?P<slug>[a-zA-Z0-9-]+)/?$', CategoryListView.as_view(paginate_by=5, model=Category,)),
 	# Tags
-	# Categories
 	url(r'^tag/(?P<slug>[a-zA-Z0-9-]+)/?$', TagListView.as_view(paginate_by=5, model=Tag,)),
+	# Search
+	url(r'^search', 'blogengine.views.getSearchResults'),
 )

@@ -1,6 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render_to_response
+from django.core.paginator import Paginator, EmptyPage
+from django.db.models import Q
 from django.views.generic import ListView
 from blogengine.models import Category, Post, Tag
+from django.utils.encoding import force_unicode
+from django.utils.safestring import mark_safe
+
+import markdown2
 
 # Create your views here.
 class CategoryListView(ListView):
@@ -20,3 +26,23 @@ class TagListView(ListView):
 			return tag.post_set.all()
 		except Tag.DoesNotExist:
 			return Post.objects.none()
+
+
+def getSearchResults(request):
+	query = request.GET.get('q', '')
+	page = request.GET.get('page', 1)
+
+	results = Post.objects.filter(Q(text__icontains=query) | Q(title__icontains=query))
+
+	pages = Paginator(results, 5)
+
+	try:
+		returned_page = pages.page(page)
+	except EmptyPage:
+		returned_page = pages.page(pages.num_pages)
+
+	return render_to_response('blogengine/search_post_list.html',
+		{'page_obj': returned_page,
+		'object_list': returned_page.object_list,
+		'search': query})
+	
