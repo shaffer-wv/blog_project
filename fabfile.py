@@ -1,5 +1,8 @@
 from fabric.api import local
 
+def test_cov():
+	local('python manage.py jenkins --coverage-html-report=htmlcov')
+
 def deploy():
 	# Push changes to master
 	local("git push origin master")
