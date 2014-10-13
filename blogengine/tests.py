@@ -147,7 +147,7 @@ class AdminTest(BaseAcceptanceTest):
 
 	def test_login(self):
 		# Get login page
-		response = self.client.get('/admin/')
+		response = self.client.get('/admin/', follow=True)
 
 		# Check response code
 		self.assertEquals(response.status_code, 200)
@@ -180,7 +180,7 @@ class AdminTest(BaseAcceptanceTest):
 		self.client.logout()
 
 		# Check response code
-		response = self.client.get('/admin/')
+		response = self.client.get('/admin/', follow=True)
 		self.assertEquals(response.status_code, 200)
 
 		# Check 'Log in' in response
@@ -207,8 +207,8 @@ class AdminTest(BaseAcceptanceTest):
 			'pub_date_0': '2014-9-23',
 			'pub_date_1': '22:00:04',
 			'site': '1',
-			'category': '1',
-			'tags': '1'
+			'category': str(category.pk),
+			'tags': str(tag.pk)
 			},
 			follow=True)
 		self.assertEquals(response.status_code, 200)
@@ -224,6 +224,8 @@ class AdminTest(BaseAcceptanceTest):
 		# Create the post
 		post = PostFactory()
 
+		category = CategoryFactory()
+
 		tag = TagFactory()
 		post.tags.add(tag)
 		post.save()
@@ -232,15 +234,15 @@ class AdminTest(BaseAcceptanceTest):
 		self.client.login(username='bobsmith', password="password")
 
 		# Edit the post
-		response = self.client.post('/admin/blogengine/post/1/', {
+		response = self.client.post('/admin/blogengine/post/' + str(post.pk) + '/', {
 			'title': 'My second post',
 			'text': 'This is my second post',
 			'slug': 'my-second-post',
 			'pub_date_0': '2014-9-23',
 			'pub_date_1': '22:00:05',
 			'site': '1',
-			'category': '1',
-			'tags': '1'
+			'category': str(category.pk),
+			'tags': str(tag.pk)
 			},
 			follow=True)
 		self.assertEquals(response.status_code, 200)
@@ -268,7 +270,7 @@ class AdminTest(BaseAcceptanceTest):
 		self.client.login(username='bobsmith', password="password")
 
 		# Delete post
-		response = self.client.post('/admin/blogengine/post/1/delete/', {
+		response = self.client.post('/admin/blogengine/post/' + str(post.pk) + '/delete/', {
 			'post': 'yes'
 			}, follow=True)
 		self.assertEquals(response.status_code, 200)
@@ -302,7 +304,7 @@ class AdminTest(BaseAcceptanceTest):
 
 		self.client.login(username='bobsmith', password="password")
 
-		response = self.client.post('/admin/blogengine/category/1/', {
+		response = self.client.post('/admin/blogengine/category/' + str(category.pk) + '/', {
 			'name': 'perl',
 			'description': 'The Perl programming language'
 			}, follow=True)
@@ -321,7 +323,7 @@ class AdminTest(BaseAcceptanceTest):
 
 		self.client.login(username='bobsmith', password="password")
 
-		response = self.client.post('/admin/blogengine/category/1/delete/', {
+		response = self.client.post('/admin/blogengine/category/' + str(category.pk) + '/delete/', {
 			'post': 'yes'
 			}, follow=True)
 		self.assertEquals(response.status_code, 200)
@@ -351,7 +353,7 @@ class AdminTest(BaseAcceptanceTest):
 
 		self.client.login(username='bobsmith', password="password")
 
-		response = self.client.post('/admin/blogengine/tag/1/', {
+		response = self.client.post('/admin/blogengine/tag/' + str(tag.pk) + '/', {
 			'name': 'java',
 			}, follow=True)
 		self.assertEquals(response.status_code, 200)
@@ -367,10 +369,10 @@ class AdminTest(BaseAcceptanceTest):
 
 		self.client.login(username='bobsmith', password="password")
 
-		response = self.client.post('/admin/blogengine/tag/1/')
+		response = self.client.post('/admin/blogengine/tag/' + str(tag.pk) + '/')
 		self.assertEquals(response.status_code, 200)
 
-		response = self.client.post('/admin/blogengine/tag/1/delete/', {
+		response = self.client.post('/admin/blogengine/tag/' + str(tag.pk) + '/delete/', {
 			'post': 'yes'
 			}, follow=True)
 		self.assertEquals(response.status_code, 200)
@@ -393,7 +395,7 @@ class AdminTest(BaseAcceptanceTest):
 			'pub_date_1': '22:00:04',
 			'slug': 'my-first-post',
 			'site': '1',
-			'category': '1'
+			'category': str(category.pk)
 			},
 			follow=True)
 		self.assertEquals(response.status_code, 200)
