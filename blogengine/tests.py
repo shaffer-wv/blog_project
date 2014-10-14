@@ -2,6 +2,7 @@ from django.test import TestCase, LiveServerTestCase, Client
 from django.utils import timezone
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 from blogengine.models import Post, Category, Tag
 
 import markdown2 as markdown
@@ -421,7 +422,7 @@ class PostViewTest(BaseAcceptanceTest):
 		self.assertEquals(len(all_posts), 1)
 
 		# Fetch the index
-		response = self.client.get('/')
+		response = self.client.get(reverse('blogengine:index'))
 		self.assertEquals(response.status_code, 200)
 
 		# Check the post title is in the response
@@ -573,7 +574,7 @@ class SearchViewTest(BaseAcceptanceTest):
 		post2 = PostFactory(text='This is my *second* blog post', title='My second post', slug='my-second-post')
 
 		# Search for the first post
-		response = self.client.get('/search?q=first')
+		response = self.client.get(reverse('blogengine:search') + '?q=first')
 		self.assertEquals(response.status_code, 200)
 
 		# Check first post is in results
@@ -581,7 +582,7 @@ class SearchViewTest(BaseAcceptanceTest):
 
 		self.assertTrue('My second post' not in response.content)
 
-		response = self.client.get('/search?q=second')
+		response = self.client.get(reverse('blogengine:search') + '?q=second')
 		self.assertEquals(response.status_code, 200)
 
 		self.assertTrue('My first post' not in response.content)
@@ -590,11 +591,11 @@ class SearchViewTest(BaseAcceptanceTest):
 
 	def test_failing_search(self):
 		# Search for something that doesn't exist
-		response = self.client.get('/search?q=baseball')
+		response = self.client.get(reverse('blogengine:search') + '?q=baseball')
 		self.assertEquals(response.status_code, 200)
 		self.assertTrue('No posts found' in response.content)
 
 		# Try to get nonexistent second page
-		response = self.client.get('/search?q=baseball&page=2')
+		response = self.client.get(reverse('blogengine:search') + '?q=baseball&page=2')
 		self.assertEquals(response.status_code, 200)
 		self.assertTrue('No posts found' in response.content)
